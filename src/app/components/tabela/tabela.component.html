@@ -1,0 +1,40 @@
+<div class="mat-elevation-z8">
+  <table mat-table [dataSource]="cotacoes.value" class="full-width-table" matSort aria-label="Elements">
+    <!-- Id Column -->
+    <ng-container matColumnDef="cotacaoCompra">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>
+        <div>
+          <p>Cotacao de compra</p>
+          <input type="text">
+        </div>
+      </th>
+      <td mat-cell *matCellDef="let row">{{row.cotacaoCompra}}</td>
+    </ng-container>
+
+    <!-- Name Column -->
+    <ng-container matColumnDef="cotacaoVenda">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>
+        <div>
+          <p>Cotacao de venda</p>
+          <input type="text">
+      </div>
+    </th>
+      <td mat-cell *matCellDef="let row">{{row.cotacaoVenda}}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="dataHoraCotacao">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>
+        <div>
+          <p>Data da cotacao</p>
+          <input type="text">
+        </div>
+      </th>
+      <td mat-cell *matCellDef="let row">{{row.dataHoraCotacao}}</td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+  </table>
+
+
+</div>
