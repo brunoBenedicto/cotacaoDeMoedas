@@ -7,7 +7,7 @@ import { Observable } from 'rxjs';
 })
 export class BuscaFormService {
 
-
+ 
   selecionaMoeda(moeda:string):string | null{
     var moedaSelecionada:string
     switch (moeda){

@@ -1,47 +1,71 @@
-import { BuscaFormService } from './../../busca-form/busca-form.service';
-
 import { Component, OnInit } from '@angular/core';
-import { Busca } from 'src/app/busca';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { BuscaFormService } from './../../busca-form/busca-form.service';
+import { catchError } from 'rxjs/operators';
+import { of } from 'rxjs';
+import { AbstractControl, ValidatorFn } from '@angular/forms';
 
 @Component({
   selector: 'app-busca-form',
   templateUrl: './busca-form.component.html'
 })
-export class BuscaFormComponent {
-  cotacoes : any
+export class BuscaFormComponent implements OnInit {
+  cotacoes: any;
   formulario: FormGroup;
-  moedas = ["Dolar australiano","Dolar canadense","Euro","Dolar americano"
-  ];
-
+  moedas = ["Dolar australiano", "Dolar canadense", "Euro", "Dolar americano"];
   submitted = false;
 
-  constructor(private formBuilder: FormBuilder, private BuscaFormService: BuscaFormService) {
+  constructor(
+    private formBuilder: FormBuilder,
+    private buscaFormService: BuscaFormService
+  ) {}
+
+  ngOnInit() {
     this.formulario = this.formBuilder.group({
       moeda: ['', [Validators.required]],
-      dataInicio: ['',  [Validators.required]],
+      dataInicio: ['', [Validators.required]],
       dataFim: ['', [Validators.required]],
+    }, { validator: this.dataFinalPosteriorDataInicialValidator() });
+  }
+  
+
+  onSubmit() {
+    if (this.formulario.invalid) {
+      return;
+    }
+
+    const moeda: string = this.formulario.get('moeda')?.value;
+    const dataInicio: string = this.formulario.get('dataInicio')?.value;
+    const dataFim: string = this.formulario.get('dataFim')?.value;
+
+    this.buscaFormService.read(moeda, dataInicio, dataFim).pipe(
+      catchError(error => {
+        console.log('Ocorreu um erro ao buscar as cotações:', error);
+        return of(null);
+      })
+    ).subscribe(cotacoes => {
+      if (cotacoes) {
+        this.cotacoes = cotacoes;
+        console.log('Cotações encontradas:', this.cotacoes);
+      } else {
+        console.log('Não foi possível buscar as cotações.');
+      }
     });
 
-   }
-ngOnInit(){
-  this.formulario = this.formBuilder.group({
-    moeda: ['', [Validators.required]],
-    dataInicio: ['',  [Validators.required]],
-    dataFim: ['', [Validators.required]],
-  });
-}
-  onSubmit() {
-    var moeda = this.formulario.get('moeda')?.value
-    var dataInicio = this.formulario.get('dataInicio')?.value
-    var dataFim = this.formulario.get('dataFim')?.value
-    this.BuscaFormService.read(moeda,dataInicio,dataFim).subscribe(cotacoes =>{
-      this.cotacoes = cotacoes
-      console.log("aaaaaaaaaaa")
-      console.log(this.cotacoes)
-      console.log("suuuubmit")
-    })
-    this.submitted = true;}
+    this.submitted = true;
+  }
+  dataFinalPosteriorDataInicialValidator(): ValidatorFn {
+    return (formGroup: AbstractControl) => {
+      const dataInicio = formGroup.get('dataInicio')?.value;
+      const dataFim = formGroup.get('dataFim')?.value;
+  
+      if (dataInicio && dataFim && dataFim < dataInicio) {
+        return { dataFinalAnterior: true };
+      }
+  
+      return null;
+    };
+  }
 }
 
 
